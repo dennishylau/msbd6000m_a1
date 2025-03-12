@@ -7,3 +7,14 @@ Consider the discrete-time asset allocation example in section 8.4 of Rao and Je
 ## Objective
 
 ## How to run
+
+1. Python runtime is 3.12.7.
+2. Install dependencies with `pip install -r /path/to/requirements.txt`.
+
+## How to run tests
+
+The following command will run and list all tests
+
+```python
+pytest -v
+```
