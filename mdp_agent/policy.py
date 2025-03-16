@@ -77,3 +77,7 @@ class Policy:
         "Linear decay of alpha to 0."
         update_count = self.epochs * (len(self.state_space) - 1)
         self.alpha -= self.init_alpha / update_count
+
+    def print_policy(self):
+        print(self.q_table.idxmax(axis=1))
+        return self.q_table.idxmax(axis=1)
