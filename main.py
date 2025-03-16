@@ -5,7 +5,9 @@ from mdp_agent.action_space import ActionSpace
 from mdp_env.risky_asset import RiskyAsset
 from mdp_env.risk_free_asset import RiskFreeAsset
 from mdp_env.train import train
+from mdp_env.reward import reward_eval
 import numpy as np
+
 
 from IPython.core.display_functions import display
 
@@ -36,11 +38,6 @@ risky_asset = RiskyAsset(0.15, 0.1, 0.5)
 risk_free_asset = RiskFreeAsset(0.04)
 # CARA Coefficient
 CARA_COEF = 1
-
-
-def reward_eval(wealth, cara_coef) -> float:
-    "The CARA Utility Function."
-    return (-np.exp(-cara_coef * wealth)) / cara_coef
 
 
 train(

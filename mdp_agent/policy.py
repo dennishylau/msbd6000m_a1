@@ -32,6 +32,10 @@ class Policy:
         return self.q_table.loc[[state]].idxmax(axis=1).tolist()[0]
 
     def get_action(self, state) -> Action:
+        """
+        When `training == True`, use epsilon-greedy algorthm for actions.
+        When `training == False`, use greedy algorthm for actions.
+        """
         # epsilon-greedy
         if self.training and np.random.rand() < self.init_epsilon:
             # explore with random policy
