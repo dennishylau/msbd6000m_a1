@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import numpy as np
 from mdp_agent.action import Action
 import random
+from decimal import Decimal
 
 
 @dataclass
@@ -11,14 +12,14 @@ class ActionSpace:
     risky asset.
 
     Args:
-        min_alloc (float): define the minimum allocation.
-        max_alloc (float): define the maximum allocation.
-        increment (float): as action is discrete, this is the increment \
+        min_alloc (Decimal): define the minimum allocation.
+        max_alloc (Decimal): define the maximum allocation.
+        increment (Decimal): as action is discrete, this is the increment \
             between `min_alloc` and `max_alloc`.
     """
-    min_alloc: float
-    max_alloc: float
-    increment: float
+    min_alloc: Decimal
+    max_alloc: Decimal
+    increment: Decimal
 
     @property
     def choices(self) -> list[Action]:
@@ -27,7 +28,7 @@ class ActionSpace:
             self.min_alloc,
             self.max_alloc + self.increment,
             self.increment).tolist()
-        return [round(Action(i), 2) for i in actions]
+        return [Action(i) for i in actions]
 
     def random(self) -> Action:
         "Get random action with uniform distribution."

@@ -7,6 +7,7 @@ from mdp_env.risk_free_asset import RiskFreeAsset
 from mdp_env.train import train
 from mdp_env.reward import reward_eval
 import numpy as np
+from decimal import Decimal
 
 
 from IPython.core.display_functions import display
@@ -23,7 +24,10 @@ INIT_ALPHA = 0.01
 # state space: this is dependent on time, per section 8.4 of Rao and Jelvis.
 states = np.arange(0, T + 1, 1)
 # action space
-actions = ActionSpace(0, 1.0, 0.2)
+actions = ActionSpace(
+    Decimal("0"),
+    Decimal("1.0"),
+    Decimal("0.2"))
 # policy
 policy = Policy(
     epochs=EPOCHS,

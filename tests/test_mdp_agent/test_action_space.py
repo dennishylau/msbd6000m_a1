@@ -5,7 +5,10 @@ from decimal import Decimal
 
 @pytest.fixture
 def as_fixture():
-    return ActionSpace(0, 0.2, 0.1)
+    return ActionSpace(
+        Decimal("0"),
+        Decimal("0.2"),
+        Decimal("0.1"))
 
 
 def test_action_space_choices(as_fixture):
