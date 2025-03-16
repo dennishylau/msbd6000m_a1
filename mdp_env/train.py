@@ -1,10 +1,10 @@
 from typing import Callable
 from tqdm import tqdm
-from mdp_agent.action import Action
 from mdp_agent.policy import Policy
 from mdp_env.risky_asset import RiskyAsset
 from mdp_env.risk_free_asset import RiskFreeAsset
-from IPython.core.display_functions import display
+import pandas as pd
+import numpy as np
 
 
 def train(
@@ -18,52 +18,58 @@ def train(
     cara_coef: float
 ):
 
+    prev_q_table: pd.DataFrame | None = None
+    max_delta_hist: list[float] = []
+    max_delta_mean: float | None = None
+
     for epoch in tqdm(range(epochs)):
 
         # init state
         state = 0
         # wealth trajectory
         wealth: list[float] = [1.0]
-        # action trajectory
-        actions: list[Action] = []
-        # risky trajectory
-        risky_returns: list[float] = []
 
         for t in range(T):
             # action is the risky asset allocation in percentage
             action = policy.get_action(state=state)
-            actions.append(action)
+            # get latest wealth
             wealth_current = wealth[-1]
+            # sample the risky asset return distribution
             risky_return = risky_asset.sample()
-            risky_returns.append(risky_return)
+            # calculate wealth after action
             wealth_next = wealth_current * (
                 float(action) * (1 + risky_return)
                 + (1.0 - float(action)) * (1 + risk_free_asset.sample())
             )
             wealth.append(wealth_next)
-
+            # prepare transition to next state
             next_state = state + 1
-            # testing
+            # calculate reward
             reward = reward_eval(wealth_next, cara_coef)
-
-            # works
-            # reward = wealth_next
-
-            # doesn't work
-            # if next_state == T:
-            #     reward = terminal_reward(wealth_next)
-            # else:
-            #     reward = 0
+            # state-action value update
             policy.update(state, action, reward, next_state)
+            # transition to next state
             state = next_state
 
-            # if next_state == T:
-            #     print(f"Epoch: {epoch}")
-            #     print(f"Wealth Trajectory: {[f"{i:.2f}" for i in wealth]}")
-            #     print(f"Action Trajectory: {[f"{i:.2f}" for i in actions]}")
-            #     print(f"Risky  Trajectory: {[f"{i:.2f}" for i in risky_returns]}")
-            #     print(f"Reward: {reward}")
+        # check if q_table has converged
+        if prev_q_table is not None:
+            # calculate maximum delta in one epoch across all state-action
+            # values
+            max_delta = (policy.q_table - prev_q_table).abs().max().max()
+            max_delta_hist.append(max_delta)
+            # smoothen delta to avoid noise and incorrect early stopping
+            max_delta_mean = np.mean(max_delta_hist[-10:])
+            # early stopping when delta is small
+            if max_delta_mean < 1e-4:
+                print(f"Converged. Total Epochs: {epoch}.")
+                print(f"Last 10 max delta mean: {max_delta_mean:.6f}.")
+                break
+        # update the previous q-table
+        prev_q_table = policy.q_table.copy()
 
+        # print for progress monitoring
         if epoch % 1000 == 0:
-            print(f"Epoch: {epoch}, Alpha: {policy.alpha}, Epsilon: {policy.epsilon}")
-            display(policy.q_table.idxmax(axis=1))
+            print(f"Epoch: {epoch}")
+            print(f"Alpha: {policy.alpha:.6f}, Epsilon: {policy.epsilon:.6f}.")
+            if max_delta_mean:
+                print(f"Last 10 max delta mean: {max_delta_mean:.6f}.")

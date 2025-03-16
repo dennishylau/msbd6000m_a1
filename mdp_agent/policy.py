@@ -8,7 +8,19 @@ import pandas as pd
 @dataclass
 class Policy:
     """
+    The policy that provides action based on state, with Q-Learning update \
+        rule.
 
+    Args:
+        state_space (list): Used to generate Q-Table.
+        action_space (ActionSpace): Used to generate Q-Table.
+        training (bool): If `True`, decay epsilon greedy; else always greedy.
+        epochs (int): Used for alpha/epsilone linear decay.
+        init_epsilon (float): Initial probability of exploration when \
+            `training`. Linearly decays to 0.
+        init_alpha (float): Initial learning rate on TD Error. \
+            Linearly decays to 0.
+        gamma (float): Reward discount rate. Constant over training.
     """
     state_space: list
     action_space: ActionSpace
@@ -51,6 +63,7 @@ class Policy:
         return self.q_table.loc[state].max()
 
     def update(self, state, action, reward, next_state):
+        "Q-Learning update rule."
         current_value = self.get_q_value(state, action)
         td_target = (
             reward
@@ -58,30 +71,42 @@ class Policy:
         td_error = td_target - current_value
         new_value = current_value + (
             self.init_alpha * td_error)
-        # print(f"""
-        # State: {state}
-        # Action: {action}
-        # Reward: {reward}
-        # Next State: {next_state}
-        # td_target: {td_target}
-        # td_error: {td_error}
-        # alpha: {self.alpha}
-        # q-value: {current_value} -> {new_value}
-        # """)
         self.q_table.loc[state, action] = new_value
         self.decay_alpha()
-        self.decay_epsilon()
+        self.decay_epsilon(1.2)
 
-    def decay_epsilon(self):
-        "Linear decay of epsilon to 0."
+    def decay_epsilon(self, factor: float = 1.0):
+        """
+        Linear decay of epsilon to 0.
+
+        Args:
+            factor (float): default `1.0`, meaning decay to zero when training\
+            ends at `epochs / 1.0`. Increase to decay faster.
+        """
         update_count = self.epochs * (len(self.state_space) - 1)
-        self.epsilon -= self.init_epsilon / update_count
+        self.epsilon -= self.init_epsilon / update_count * factor
+        if self.epsilon < 0:
+            self.epsilon = 0
 
-    def decay_alpha(self):
-        "Linear decay of alpha to 0."
+    def decay_alpha(self, factor: float = 1.0):
+        """
+        Linear decay of alpha to 0.
+
+        Args:
+            factor (float): default `1.0`, meaning decay to zero when training\
+            ends at `epochs / 1.0`. Increase to decay faster.
+        """
         update_count = self.epochs * (len(self.state_space) - 1)
-        self.alpha -= self.init_alpha / update_count
+        self.alpha -= self.init_alpha / update_count * factor
+        if self.alpha < 0:
+            self.alpha = 0
 
-    def print_policy(self):
-        print(self.q_table.idxmax(axis=1))
+    @property
+    def optimal(self):
+        "Return the optimal policy per the Q-Table."
         return self.q_table.idxmax(axis=1)
+
+    def print(self):
+        "Print the optimal policy per the Q-Table."
+        optimal = self.optimal
+        print(optimal)

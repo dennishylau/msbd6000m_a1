@@ -1,7 +1,6 @@
 # %%
 from mdp_agent.policy import Policy
 from mdp_agent.action_space import ActionSpace
-# from mdp_agent.policy import Policy
 from mdp_env.risky_asset import RiskyAsset
 from mdp_env.risk_free_asset import RiskFreeAsset
 from mdp_env.train import train
@@ -14,7 +13,7 @@ from IPython.core.display_functions import display
 
 # Parameters Configuration
 
-EPOCHS = 10000
+EPOCHS = 20000
 # Total time periods
 T = 10
 # init for epsilon-greedy
@@ -54,9 +53,8 @@ train(
     cara_coef=CARA_COEF
 )
 
-
 display(policy.q_table)
 
-display(policy.q_table.idxmax(axis=1))
-
+print("Optimal policy:")
+policy.print()
 # %%
