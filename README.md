@@ -20,12 +20,13 @@ Consider the discrete-time asset allocation example in section 8.4 of Rao and Je
 
 ## Objective
 
-- Maximize
+- Maximize expectation on CARA Utility Function, which can be done by maximizing expected wealth at terminal state T
 
 ## How to run
 
 1. Python runtime is 3.12.7.
 2. Install dependencies with `pip install -r /path/to/requirements.txt`.
+3. Read `main.ipynb` for different scenarios of risky asset stochastic return.
 
 ## How to run tests
 
@@ -38,5 +39,5 @@ pytest -v
 While the following will provide coverage report:
 
 ```python
-pytest --cov=. tests/
+pytest --cov=. --cov-report term-missing tests/
 ```

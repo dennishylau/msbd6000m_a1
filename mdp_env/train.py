@@ -15,7 +15,8 @@ def train(
     risk_free_asset: RiskFreeAsset,
     policy: Policy,
     reward_eval: Callable[[float, float], float],
-    cara_coef: float
+    cara_coef: float,
+    early_stopping: float = 2e-4
 ):
 
     prev_q_table: pd.DataFrame | None = None
@@ -60,7 +61,7 @@ def train(
             # smoothen delta to avoid noise and incorrect early stopping
             max_delta_mean = np.mean(max_delta_hist[-10:])
             # early stopping when delta is small
-            if max_delta_mean < 1e-4:
+            if max_delta_mean < early_stopping:
                 print(f"Converged. Total Epochs: {epoch}.")
                 print(f"Last 10 max delta mean: {max_delta_mean:.6f}.")
                 break

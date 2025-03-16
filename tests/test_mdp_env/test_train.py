@@ -54,7 +54,8 @@ def test_train(test_policy_1):
         risk_free_asset=risk_free_asset,
         policy=policy,
         reward_eval=reward_eval,
-        cara_coef=CARA_COEF
+        cara_coef=CARA_COEF,
+        early_stopping=1e-5
     )
 
     expected = pd.Series(
