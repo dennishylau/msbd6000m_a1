@@ -14,17 +14,18 @@ class Policy:
     action_space: ActionSpace
     training: bool
     epochs: int
-    init_epsilon: float = 0.5
-    alpha: float = 0.1
-    gamma: float = 0.01
+    init_epsilon: float = 0.3
+    init_alpha: float = 0.01
+    gamma: float = 0.5
 
     def __post_init__(self):
         "Init the Q-Table."
         state_action_space = np.zeros(
             (len(self.state_space), len(self.action_space)))
-        # state_action_space -= 1
         self.q_table = pd.DataFrame(
             state_action_space, columns=self.action_space.choices)
+        self.alpha = self.init_alpha
+        self.epsilon = self.init_epsilon
 
     def __exploit(self, state) -> Action:
         "Return the action with max value based on a state."
@@ -52,7 +53,7 @@ class Policy:
             + self.gamma * self.get_max_q_value(next_state))
         td_error = td_target - current_value
         new_value = current_value + (
-            self.alpha * td_error)
+            self.init_alpha * td_error)
         # print(f"""
         # State: {state}
         # Action: {action}
@@ -65,13 +66,14 @@ class Policy:
         # """)
         self.q_table.loc[state, action] = new_value
         self.decay_alpha()
+        self.decay_epsilon()
 
-    @property
-    def greedy_policy(self):
-        pass
-
-    def step_epsilon(self):
-        pass
+    def decay_epsilon(self):
+        "Linear decay of epsilon to 0."
+        update_count = self.epochs * (len(self.state_space) - 1)
+        self.epsilon -= self.init_epsilon / update_count
 
     def decay_alpha(self):
-        self.alpha -= self.alpha / self.epochs / len(self.state_space)
+        "Linear decay of alpha to 0."
+        update_count = self.epochs * (len(self.state_space) - 1)
+        self.alpha -= self.init_alpha / update_count

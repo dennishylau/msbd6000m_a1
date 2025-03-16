@@ -14,7 +14,8 @@ EPOCHS = 10000
 # Total periods
 T = 10
 # epsilon
-EPSILON = 1
+INIT_EPSILON = 0.3
+INIT_ALPHA = 0.01
 # action space
 action_space = ActionSpace(0, 3, 0.1)
 # policy
@@ -27,8 +28,9 @@ states = np.arange(0, T + 1, 1)
 actions = ActionSpace(0, 1.0, 0.2)
 
 policy = Policy(
-    init_epsilon=EPSILON,
     epochs=EPOCHS,
+    init_epsilon=INIT_EPSILON,
+    init_alpha=INIT_ALPHA,
     state_space=states,
     action_space=actions,
     training=True
@@ -37,8 +39,7 @@ policy = Policy(
 cara_coef = 1
 
 
-def terminal_reward(wealth) -> float:
-    # return wealth
+def reward_eval(wealth) -> float:
     return (-np.exp(-cara_coef*wealth)) / cara_coef
 
 
@@ -76,8 +77,12 @@ for epoch in tqdm(range(EPOCHS)):
         wealth.append(wealth_next)
 
         next_state = state + 1
+        # testing
+        reward = reward_eval(wealth_next)
+
         # works
-        reward = wealth_next
+        # reward = wealth_next
+
         # doesn't work
         # if next_state == T:
         #     reward = terminal_reward(wealth_next)
@@ -94,7 +99,7 @@ for epoch in tqdm(range(EPOCHS)):
         # print(f"Reward: {reward}")
 
     if epoch % 1000 == 0:
-        print(f"Epoch: {epoch}")
+        print(f"Epoch: {epoch}, Alpha: {policy.alpha}, Epsilon: {policy.epsilon}")
         display(policy.q_table.idxmax(axis=1))
 
 display(policy.q_table)
