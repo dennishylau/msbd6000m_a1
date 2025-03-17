@@ -69,7 +69,7 @@ def train(
         prev_q_table = policy.q_table.copy()
 
         # print for progress monitoring
-        if epoch % 1000 == 0:
+        if epoch % (epochs / 10) == 0:
             print(f"Epoch: {epoch}")
             print(f"Alpha: {policy.alpha:.6f}, Epsilon: {policy.epsilon:.6f}.")
             if max_delta_mean:

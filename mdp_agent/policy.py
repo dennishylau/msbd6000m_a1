@@ -28,7 +28,7 @@ class Policy:
     epochs: int
     init_epsilon: float = 0.3
     init_alpha: float = 0.01
-    gamma: float = 0.5
+    gamma: float = 0.9
 
     def __post_init__(self):
         "Init the Q-Table."
